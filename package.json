@@ -1,0 +1,31 @@
+{
+	"name": "blake3-js",
+	"version": "1.0.0",
+	"main": "dist/main.js",
+	"entry": "./src/classes/Hasher",
+	"license": "Apache-2.0",
+	"author": "Romé van Grinsven",
+	"repository": "github:rvgrinsven/blake3-js",
+	"licenses": [
+		{
+			"type": "Apache-2.0",
+			"url": "http://www.apache.org/licenses/LICENSE-2.0"
+		}
+	],
+	"devDependencies": {
+		"@babel/core": "^7.8.0",
+		"@babel/plugin-transform-modules-commonjs": "^7.8.0",
+		"@babel/preset-env": "^7.8.2",
+		"chai": "^4.2.0",
+		"eslint": "^6.8.0",
+		"esm": "^3.2.25",
+		"mocha": "^7.0.0",
+		"webpack": "latest",
+		"webpack-cli": "latest"
+	},
+	"scripts": {
+		"test": "mocha --require esm './test'",
+		"build": "webpack"
+	},
+	"type": "commonjs"
+}
