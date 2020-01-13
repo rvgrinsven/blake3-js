@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import Output from "../src/classes/Output";
-import { intu32, u32int, intu64, u8int } from "../src/util";
+import { intu32, u32int, intu64 } from "../src/util";
 
 const value1 = [
 	intu32(0x6a09e667),
@@ -63,9 +63,7 @@ describe("#output()", function() {
 			intu32(0)
 		);
 
-		expect(
-			output2.root_output_bytes(23).map(val => u8int(val))
-		).to.deep.equal([
+		expect(output2.root_output_bytes(23)).to.deep.equal([
 			198,
 			135,
 			190,

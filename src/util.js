@@ -50,14 +50,8 @@ export function u32int(a) {
 	return parseInt(a, 2);
 }
 
-export function u8int(a) {
-	return parseInt(a, 2);
-}
-
 export function u8hex(a) {
-	return parseInt(a, 2)
-		.toString(16)
-		.padStart(2, "0");
+	return a.toString(16).padStart(2, "0");
 }
 
 export function rotateRight(a, n) {
@@ -121,7 +115,10 @@ export function words_from_little_endian_bytes(leBytes) {
 			return result;
 		}
 		result.push(
-			leBytes[i + 3] + leBytes[i + 2] + leBytes[i + 1] + leBytes[i]
+			leBytes[i + 3].toString(2).padStart(8, "0") +
+				leBytes[i + 2].toString(2).padStart(8, "0") +
+				leBytes[i + 1].toString(2).padStart(8, "0") +
+				leBytes[i].toString(2).padStart(8, "0")
 		);
 	}
 	return result;
@@ -129,12 +126,12 @@ export function words_from_little_endian_bytes(leBytes) {
 
 //this goes from an array of u32 -> array of u8
 export function little_endian_bytes_from_words(words) {
-	let result = [];
-	for (const u32 of words) {
-		result.push(u32.substring(24, 32));
-		result.push(u32.substring(16, 24));
-		result.push(u32.substring(8, 16));
-		result.push(u32.substring(0, 8));
+	let result = new Uint8Array(words.length * 4);
+	for (let i = 0; i < result.length; i += 4) {
+		result[i] = parseInt(words[i].substring(24, 32), 2);
+		result[i + 1] = parseInt(words[i].substring(16, 24), 2);
+		result[i + 2] = parseInt(words[i].substring(8, 16), 2);
+		result[i + 3] = parseInt(words[i].substring(0, 8), 2);
 	}
 	return result;
 }

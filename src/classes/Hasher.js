@@ -77,17 +77,17 @@ export default class Hasher {
 
 	static newKeyed(key) {
 		if (typeof key == "string") {
-			var bytesv2 = []; // char codes
 			let str = key;
+			var key = new Uint8Array(key.length);
 			for (var i = 0; i < str.length; ++i) {
 				var code = str.charCodeAt(i);
-				//bytesv2 = bytesv2.concat([code & 0xff, (code / 256) >>> 0]);
-				bytesv2 = bytesv2.concat(code);
+				key[i] = code;
 			}
-			key = bytesv2.map(intu8);
+		} else {
+			input = new Uint8Array(key);
 		}
-		const keyWords = words_from_little_endian_bytes(key);
 
+		const keyWords = words_from_little_endian_bytes(key);
 		return new Hasher(keyWords, KEYED_HASH);
 	}
 
@@ -125,14 +125,16 @@ export default class Hasher {
 	*/
 	update(input) {
 		if (typeof input == "string") {
-			var bytesv2 = []; // char codes
 			let str = input;
+			var input = new Uint8Array(input.length);
 			for (var i = 0; i < str.length; ++i) {
 				var code = str.charCodeAt(i);
-				//bytesv2 = bytesv2.concat([code & 0xff, (code / 256) >>> 0]);
-				bytesv2 = bytesv2.concat(code);
+				input[i] = code;
 			}
-			input = bytesv2.map(intu8);
+		} else {
+			console.log(input);
+			input = new Uint8Array(input);
+			console.log(input);
 		}
 
 		while (input.length) {
@@ -184,4 +186,3 @@ export default class Hasher {
 			.join("");
 	}
 }
-

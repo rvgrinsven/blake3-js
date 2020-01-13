@@ -20,6 +20,6 @@ describe("#lebytes()", function() {
 	it("should convert from words to le bytes", function() {
 		expect(
 			little_endian_bytes_from_words([intu32(67305985)])
-		).to.deep.equal([intu8(0x1), intu8(0x2), intu8(0x3), intu8(0x4)]);
+		).to.deep.equal(new Uint8Array([1, 2, 3, 4]));
 	});
 });

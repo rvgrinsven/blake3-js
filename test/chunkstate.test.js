@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import ChunkState from "../src/classes/ChunkState";
-import { intu32, u32int, intu64, u8int, intu8 } from "../src/util";
+import { intu32, u32int, intu64, intu8 } from "../src/util";
 
 const key = [
 	intu32(0x6a09e667),

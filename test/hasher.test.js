@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import Hasher from "../src/classes/Hasher";
-import { intu32, u32int, intu64, u8int, u8hex, intu8 } from "../src/util";
+import { intu32, u32int, intu64, u8hex, intu8 } from "../src/util";
 
 const deriveKeyContext = "BLAKE3 2019-12-27 16:29:52 test vectors context";
 const key = "whats the Elvish word for friend";
@@ -14,13 +14,15 @@ function getNextByte(number) {
 }
 
 function generateInput(length) {
-	let result = [];
+	let result = new Uint8Array(length);
+	let result2 = [];
 	let currentByte = 250;
 	for (let i = 0; i < length; i++) {
 		currentByte = getNextByte(currentByte);
-		result.push(intu8(currentByte));
+		result[i] = currentByte;
+		result2.push(currentByte);
 	}
-	return result;
+	return result2;
 }
 
 const vectors = [
