@@ -21,6 +21,8 @@ Pure javascript implementation of BLAKE3
       .update([0])
       .finalize();
 
+Note: In keyed mode the key has to be exactly 32 bytes. Accepts both an ASCII string of 32 bytes or a byte array of length 32.
+
 **Tests**
 
 Test vectors from the reference implementation have been used. Run yarn test to run the test suite.
