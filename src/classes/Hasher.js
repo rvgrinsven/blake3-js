@@ -12,6 +12,7 @@ import ChunkState from "./ChunkState";
 import Output from "./Output";
 
 const BLOCK_LEN = intu32(64);
+const KEY_LEN = 32;
 const PARENT = intu32(1 << 2);
 const IV = [
 	intu32(0x6a09e667),
@@ -24,6 +25,8 @@ const IV = [
 	intu32(0x5be0cd19)
 ];
 const KEYED_HASH = intu32(1 << 4);
+const DERIVE_KEY_CONTEXT = intu32(1 << 5);
+const DERIVE_KEY_MATERIAL = intu32(1 << 6);
 const CHUNK_LEN = 1024;
 
 /*
@@ -34,12 +37,7 @@ const CHUNK_LEN = 1024;
 	returns u32, length 8
 */
 function parent_cv(left_child_cv, right_child_cv, key, flags) {
-	const parentOutput = parent_output(
-		left_child_cv,
-		right_child_cv,
-		key,
-		flags
-	);
+	const parentOutput = parent_output(left_child_cv, right_child_cv, key, flags);
 	return parentOutput.chaining_value();
 }
 
@@ -48,10 +46,7 @@ right_child_cv: [u32; 8],
 key: [u32; 8],
 flags: u32,*/
 function parent_output(left_child_cv, right_child_cv, key, flags) {
-	let block_words = [
-		...left_child_cv.slice(0, 8),
-		...right_child_cv.slice(0, 8)
-	];
+	let block_words = [...left_child_cv.slice(0, 8), ...right_child_cv.slice(0, 8)];
 
 	return new Output(
 		key,
@@ -60,6 +55,14 @@ function parent_output(left_child_cv, right_child_cv, key, flags) {
 		BLOCK_LEN, // Always BLOCK_LEN (64) for parent nodes.
 		or(PARENT, flags)
 	);
+}
+
+function keyFromString(input) {
+	let output = new Uint8Array(input.length);
+	for (var i = 0; i < input.length; ++i) {
+		output[i] = input.charCodeAt(i);
+	}
+	return output;
 }
 
 export default class Hasher {
@@ -77,12 +80,7 @@ export default class Hasher {
 
 	static newKeyed(key) {
 		if (typeof key == "string") {
-			let str = key;
-			var key = new Uint8Array(key.length);
-			for (var i = 0; i < str.length; ++i) {
-				var code = str.charCodeAt(i);
-				key[i] = code;
-			}
+			key = keyFromString(key);
 		} else {
 			input = new Uint8Array(key);
 		}
@@ -92,8 +90,12 @@ export default class Hasher {
 	}
 
 	//context: &str
-	static newDeriveKey() {
-		//TODO
+	static newDeriveKey(context) {
+		const contextHasher = new Hasher(IV, DERIVE_KEY_CONTEXT);
+		contextHasher.update(context);
+		const key = contextHasher.finalize(KEY_LEN, "bytes");
+		const keyWords = words_from_little_endian_bytes(key);
+		return new Hasher(keyWords, DERIVE_KEY_MATERIAL);
 	}
 
 	//cv: [u32; 8]
@@ -125,16 +127,9 @@ export default class Hasher {
 	*/
 	update(input) {
 		if (typeof input == "string") {
-			let str = input;
-			var input = new Uint8Array(input.length);
-			for (var i = 0; i < str.length; ++i) {
-				var code = str.charCodeAt(i);
-				input[i] = code;
-			}
+			input = keyFromString(input);
 		} else {
-			console.log(input);
 			input = new Uint8Array(input);
-			console.log(input);
 		}
 
 		while (input.length) {
@@ -144,11 +139,7 @@ export default class Hasher {
 				let chunkCV = this.chunk_state.output().chaining_value();
 				let totalChunks = intu64(this.chunk_state.chunk_counter + 1);
 				this.addChunkChainingValue(chunkCV, totalChunks);
-				this.chunk_state = new ChunkState(
-					this.key,
-					u64int(totalChunks),
-					this.flags
-				);
+				this.chunk_state = new ChunkState(this.key, u64int(totalChunks), this.flags);
 			}
 
 			let want = CHUNK_LEN - this.chunk_state.len();
@@ -164,7 +155,7 @@ export default class Hasher {
 		return this;
 	}
 
-	finalize(outputLength = 32) {
+	finalize(outputLength = 32, outputFormat = "hex") {
 		// Starting with the Output from the current chunk, compute all the
 		// parent chaining values along the right edge of the tree, until we
 		// have the root Output.
@@ -180,9 +171,12 @@ export default class Hasher {
 				this.flags
 			);
 		}
-		return output
-			.root_output_bytes(outputLength)
-			.map(u8hex)
-			.join("");
+
+		const bytes = output.root_output_bytes(outputLength);
+		if (outputFormat == "hex") {
+			return bytes.map(u8hex).join("");
+		} else {
+			return bytes;
+		}
 	}
 }

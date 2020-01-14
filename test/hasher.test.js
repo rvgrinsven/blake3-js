@@ -219,29 +219,23 @@ const vectors = [
 
 describe("#hasher()", function() {
 	for (const vector of vectors) {
-		it(
-			"regular hasher should pass the test vector with input length: " +
-				vector.input_len,
-			function() {
-				console.log("started " + vector.input_len);
-				const hasher = Hasher.newRegular();
-				hasher.update(generateInput(vector.input_len));
-				expect(hasher.finalize(64).slice(0, 64)).to.deep.equal(
-					vector.hash.substr(0, 64)
-				);
-			}
-		);
+		it("regular hasher should pass the test vector with input length: " + vector.input_len, function() {
+			console.log("started " + vector.input_len);
+			const hasher = Hasher.newRegular();
+			hasher.update(generateInput(vector.input_len));
+			expect(hasher.finalize(64).slice(0, 64)).to.deep.equal(vector.hash.substr(0, 64));
+		});
 
-		it(
-			"keyed hasher should pass the test vector with input length: " +
-				vector.input_len,
-			function() {
-				const hasher = Hasher.newKeyed(key);
-				hasher.update(generateInput(vector.input_len));
-				expect(hasher.finalize(64).slice(0, 64)).to.deep.equal(
-					vector.keyed_hash.substr(0, 64)
-				);
-			}
-		);
+		it("keyed hasher should pass the test vector with input length: " + vector.input_len, function() {
+			const hasher = Hasher.newKeyed(key);
+			hasher.update(generateInput(vector.input_len));
+			expect(hasher.finalize(64).slice(0, 64)).to.deep.equal(vector.keyed_hash.substr(0, 64));
+		});
+
+		it("derived keyed hasher should pass the test vector with input length: " + vector.input_len, function() {
+			const hasher = Hasher.newDeriveKey(deriveKeyContext);
+			hasher.update(generateInput(vector.input_len));
+			expect(hasher.finalize(64).slice(0, 64)).to.deep.equal(vector.derive_key.substr(0, 64));
+		});
 	}
 });

@@ -1,6 +1,6 @@
 {
 	"name": "blake3-js",
-	"version": "0.0.1",
+	"version": "0.0.3",
 	"main": "dist/main.js",
 	"entry": "./src/index.js",
 	"license": "Apache-2.0",
